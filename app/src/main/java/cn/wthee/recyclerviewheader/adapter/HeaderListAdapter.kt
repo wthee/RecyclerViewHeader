@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import cn.wthee.recyclerviewheader.data.DataItem
+import cn.wthee.recyclerviewheader.data.ListItem
 import cn.wthee.recyclerviewheader.data.MockContent
 import cn.wthee.recyclerviewheader.data.MockData
 import cn.wthee.recyclerviewheader.databinding.ItemContentBinding
@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HeaderListAdapter : ListAdapter<DataItem, HeaderListAdapter.ViewHolder>(DiffCallback()) {
+class HeaderListAdapter : ListAdapter<ListItem, HeaderListAdapter.ViewHolder>(DiffCallback()) {
 
     private val ITEM_VIEW_TYPE_HEADER = 0
     private val ITEM_VIEW_TYPE_ITEM = 1
@@ -26,20 +26,20 @@ class HeaderListAdapter : ListAdapter<DataItem, HeaderListAdapter.ViewHolder>(Di
         adapterScope.launch {
             val items = when {
                 //无数据时
-                list == null || list.isEmpty() -> listOf(DataItem.Header("头部为空")) + listOf(
-                    DataItem.Content(
+                list == null || list.isEmpty() -> listOf(ListItem.Header("头部为空")) + listOf(
+                    ListItem.Content(
                         MockContent(-1, "暂无")
                     )
                 )
                 //处理数据
                 else -> {
-                    val datas = arrayListOf<DataItem>()
+                    val datas = arrayListOf<ListItem>()
                     list.forEach {
                         //添加头部
-                        datas.add(DataItem.Header(it.type))
+                        datas.add(ListItem.Header(it.type))
                         //遍历内容，并添加
                         it.contents.forEach { content ->
-                            datas.add(DataItem.Content(content))
+                            datas.add(ListItem.Content(content))
                         }
                     }
                     datas
@@ -78,16 +78,16 @@ class HeaderListAdapter : ListAdapter<DataItem, HeaderListAdapter.ViewHolder>(Di
 
     inner class ViewHolder(private val binding: ViewBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: DataItem) {
+        fun bind(item: ListItem) {
             when (item) {
                 //内容
-                is DataItem.Content -> {
+                is ListItem.Content -> {
                     (binding as ItemContentBinding).apply {
                         content.text = item.content.data
                     }
                 }
                 //头部
-                is DataItem.Header -> {
+                is ListItem.Header -> {
                     (binding as ItemHeaderBinding).apply {
                         header.text =item.header
                     }
@@ -99,24 +99,24 @@ class HeaderListAdapter : ListAdapter<DataItem, HeaderListAdapter.ViewHolder>(Di
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is DataItem.Header -> ITEM_VIEW_TYPE_HEADER
-            is DataItem.Content -> ITEM_VIEW_TYPE_ITEM
+            is ListItem.Header -> ITEM_VIEW_TYPE_HEADER
+            is ListItem.Content -> ITEM_VIEW_TYPE_ITEM
         }
     }
 }
 
-private class DiffCallback : DiffUtil.ItemCallback<DataItem>() {
+private class DiffCallback : DiffUtil.ItemCallback<ListItem>() {
 
     override fun areItemsTheSame(
-        oldItem: DataItem,
-        newItem: DataItem
+        oldItem: ListItem,
+        newItem: ListItem
     ): Boolean {
         return oldItem.id == newItem.id
     }
 
     override fun areContentsTheSame(
-        oldItem: DataItem,
-        newItem: DataItem
+        oldItem: ListItem,
+        newItem: ListItem
     ): Boolean {
         return oldItem == newItem
     }
